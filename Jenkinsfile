@@ -26,5 +26,10 @@ pipeline {
         sh 'mvn clean package spring-boot:repackage'
     }
 }
+    stage('Run App') {
+    steps {
+        sh 'nohup java -jar target/hello-app-1.0.0.jar --server.port=9090 &'
+    }
+}
     }
 }
