@@ -15,14 +15,14 @@ pipeline {
 
         stage('Build') {
             steps {
-                // Run Maven in Docker
-                sh 'docker run --rm -v $PWD:/app -w /app maven:3.9.1-eclipse-temurin-11 mvn clean package'
+                // Run Maven directly on the agent
+                sh 'mvn clean package'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'docker run --rm -v $PWD:/app -w /app maven:3.9.1-eclipse-temurin-11 mvn test'
+                sh 'mvn test'
             }
         }
 
