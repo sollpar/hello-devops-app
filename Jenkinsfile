@@ -1,8 +1,9 @@
 pipeline {
     agent any
     environment {
-        JAVA_HOME = "/usr/local/java/jdk-11.0.21"
-        PATH = "${JAVA_HOME}/bin:/usr/local/maven/apache-maven-3.9.6/bin:${env.PATH}"
+        JAVA_HOME = "/usr/local/java/jdk-11.0.21+9"
+        MAVEN_HOME = "/usr/local/maven/apache-maven-3.9.6"
+        PATH = "${JAVA_HOME}/bin:${MAVEN_HOME}/bin:${env.PATH}"
     }
     stages {
         stage('Checkout') {
@@ -12,7 +13,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                sh '''
+                echo "JAVA_HOME=$JAVA_HOME"
+                java -version
+                mvn -version
+                mvn clean package
+                '''
             }
         }
     }
