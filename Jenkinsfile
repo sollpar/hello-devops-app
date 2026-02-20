@@ -4,6 +4,8 @@ pipeline {
     environment {
         APP_NAME = "hello-app"
         IMAGE_NAME = "hello-app:${env.BUILD_NUMBER}"
+        MAVEN_HOME = "/opt/maven" // adjust if Maven is installed elsewhere
+        PATH = "${env.MAVEN_HOME}/bin:${env.PATH}"
     }
 
     stages {
@@ -15,20 +17,22 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                // Run Maven locally
+                sh "${env.MAVEN_HOME}/bin/mvn clean package"
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                sh "${env.MAVEN_HOME}/bin/mvn test"
             }
         }
 
         stage('Docker Build') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}")
+                    // Build Docker image from Dockerfile in repo
+                    docker.build("${IMAGE_NAME}", ".")
                 }
             }
         }
@@ -36,8 +40,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    // Stop and remove old container if exists
                     sh "docker stop ${APP_NAME} || true"
                     sh "docker rm ${APP_NAME} || true"
+                    // Run new container
                     sh "docker run -d --name ${APP_NAME} -p 8080:8080 ${IMAGE_NAME}"
                 }
             }
