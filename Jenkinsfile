@@ -21,5 +21,10 @@ pipeline {
                 '''
             }
         }
+        stage('Package Spring Boot App') {
+    steps {
+        sh 'mvn clean package spring-boot:repackage'
+    }
+}
     }
 }
