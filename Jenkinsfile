@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Use Maven Docker image with Java 11 pre-installed
-        MAVEN_IMAGE = "maven:3.9.6-eclipse-temurin-11"
-        // Optional: Docker proxy settings if needed
-        HTTP_PROXY = "http://vssrinfravr.connex.ro:3128/"
-        HTTPS_PROXY = "http://vssrinfravr.connex.ro:3128/"
+        MAVEN_HOME = "/usr/local/maven/apache-maven-3.9.6"
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
+        JAVA_HOME = "/usr/local/java/jdk-11.0.21+9"
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
     }
 
     stages {
@@ -22,53 +21,26 @@ pipeline {
 
         stage('Build') {
             steps {
-                script {
-                    docker.image(env.MAVEN_IMAGE).inside('-u root') {
-                        sh 'mvn clean package'
-                    }
-                }
+                sh 'mvn clean package'
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    docker.image(env.MAVEN_IMAGE).inside('-u root') {
-                        sh 'mvn test'
-                    }
-                }
+                sh 'mvn test'
             }
         }
 
         stage('Docker Build & Push') {
             steps {
-                script {
-                    // Replace these with your Docker registry details
-                    def imageName = "myapp:${env.BUILD_NUMBER}"
-                    sh """
-                        docker build -t ${imageName} .
-                        # docker push ${imageName}  # Uncomment if pushing to registry
-                    """
-                }
+                echo "Skip Docker stage, or run on Jenkins host that has Docker CLI"
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Deploy stage placeholder – add deployment commands here"
+                echo "Deploy stage placeholder"
             }
-        }
-    }
-
-    post {
-        always {
-            echo "Pipeline finished. Cleaning up if needed."
-        }
-        success {
-            echo "Pipeline succeeded!"
-        }
-        failure {
-            echo "Pipeline failed."
         }
     }
 }
