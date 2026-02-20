@@ -22,14 +22,25 @@ pipeline {
             }
         }
         stage('Package Spring Boot App') {
-    steps {
-        sh 'mvn clean package spring-boot:repackage'
-    }
-}
+            steps {
+                sh 'mvn clean package spring-boot:repackage'
+            }
+        }
         stage('Run App') {
             steps {
-                sh 'nohup java -jar target/hello-app-1.0.0.jar --server.port=9090 &'
-    }
-}
+                sh '''
+                # Run Spring Boot app in the background on port 9090
+                nohup java -jar target/hello-app-1.0.0.jar --server.port=9090 > app.log 2>&1 &
+
+                # Wait until the app responds
+                echo "Waiting for app to start on port 9090..."
+                until curl -s http://localhost:9090 >/dev/null; do
+                    sleep 1
+                done
+                echo "App is up and running!"
+                curl http://localhost:9090
+                '''
+            }
+        }
     }
 }
