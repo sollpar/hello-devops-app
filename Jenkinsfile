@@ -14,13 +14,18 @@ pipeline {
         }
 
         stage('Build') {
+            agent {
+                docker { image 'maven:3.9.1-eclipse-temurin-11' }
+            }
             steps {
-                // Run Maven directly on the agent
                 sh 'mvn clean package'
             }
         }
 
         stage('Test') {
+            agent {
+                docker { image 'maven:3.9.1-eclipse-temurin-11' }
+            }
             steps {
                 sh 'mvn test'
             }
